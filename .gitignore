@@ -1,0 +1,23 @@
+# Racine — règles communes. backend/ et frontend/ ont les leurs.
+.DS_Store
+*.log
+.idea/
+.vscode/
+
+# Outils CLI
+.vercel/
+.fly/
+
+# Python (filets de sécurité au cas où on lancerait depuis la racine)
+__pycache__/
+*.pyc
+.venv/
+
+# Node
+node_modules/
+dist/
+
+# Secrets
+.env
+.env.local
+.env.*.local
