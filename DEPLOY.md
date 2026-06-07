@@ -83,7 +83,7 @@ fly status
 fly logs
 ```
 
-Vérifie : `curl https://<ton-app>.fly.dev/health` → `{"status":"ok"}`.
+Vérifie : `curl https://backend-unfurling-waterfall-7182.fly.dev/health` → `{"status":"ok"}`.
 
 ### 2.4 Token pour GitHub Actions
 

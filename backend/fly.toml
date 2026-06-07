@@ -1,42 +1,25 @@
-# Configuration Fly.io — backend FastAPI
-# Régénère / renomme l'app via : fly launch  (puis remplace `app` ci-dessous).
+# fly.toml app configuration file generated for backend-unfurling-waterfall-7182 on 2026-06-07T16:49:38+02:00
+#
+# See https://fly.io/docs/reference/configuration/ for information about how to use this file.
+#
 
-app = "job-automator-api"
-primary_region = "cdg"  # Paris — change selon ta zone
+app = 'backend-unfurling-waterfall-7182'
+primary_region = 'cdg'
 
-# ----------------------------------------------------------------------
-# Build : on utilise le Dockerfile local
-# ----------------------------------------------------------------------
 [build]
 
-# ----------------------------------------------------------------------
-# Variables d'env publiques (non-secrètes).
-# Les secrets (CORS_ORIGINS si tu veux le cacher, futures clés API)
-# se mettent avec :  fly secrets set KEY=value
-# ----------------------------------------------------------------------
+# Variables d'env publiques. Les secrets (CORS_ORIGINS, futures clés API)
+# se mettent avec : fly secrets set KEY=value
 [env]
   DATABASE_URL = "sqlite:////data/dev.db"
-  # CORS_ORIGINS sera défini en secret au déploiement (cf. DEPLOY.md)
 
-# ----------------------------------------------------------------------
-# Volume persistant pour la base SQLite.
-# IMPORTANT : avec SQLite, on garde 1 SEULE machine — sinon données divergent.
-# Créer le volume une fois :  fly volumes create data --size 1 --region cdg
-# ----------------------------------------------------------------------
-[mounts]
-  source = "data"
-  destination = "/data"
-
-# ----------------------------------------------------------------------
-# HTTP service
-# ----------------------------------------------------------------------
 [http_service]
   internal_port = 8000
   force_https = true
-  auto_stop_machines = "stop"
+  auto_stop_machines = 'stop'
   auto_start_machines = true
   min_machines_running = 0
-  processes = ["app"]
+  processes = ['app']
 
   [[http_service.checks]]
     grace_period = "10s"
@@ -45,10 +28,12 @@ primary_region = "cdg"  # Paris — change selon ta zone
     timeout = "5s"
     path = "/health"
 
-# ----------------------------------------------------------------------
-# Taille machine (gratuit / éco). À augmenter si besoin.
-# ----------------------------------------------------------------------
+# Volume persistant pour SQLite. SQLite = 1 SEULE machine, sinon données divergent.
+[[mounts]]
+  source = "data"
+  destination = "/data"
+
 [[vm]]
-  cpu_kind = "shared"
+  memory = '1gb'
+  cpu_kind = 'shared'
   cpus = 1
-  memory = "256mb"
