@@ -682,3 +682,265 @@ tbody tr:hover { background: var(--hover); }
   font-size: 12px;
   margin-bottom: 16px;
 }
+
+/* ============================================================
+ * Candidatures — grille de cartes miniatures
+ * ============================================================ */
+
+.jobs-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(290px, 1fr));
+  gap: 14px;
+}
+
+.job-card {
+  background: var(--panel);
+  border: 1px solid var(--border);
+  border-radius: var(--r-lg);
+  padding: 16px;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  cursor: pointer;
+  transition: border-color var(--t-fast), transform var(--t-fast), box-shadow var(--t-fast);
+}
+.job-card:hover {
+  border-color: var(--accent);
+  transform: translateY(-2px);
+  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.35);
+}
+
+.job-card-head { display: flex; align-items: center; gap: 6px; }
+.job-card-delete { margin-left: auto; opacity: 0; transition: opacity var(--t-fast); }
+.job-card:hover .job-card-delete { opacity: 1; }
+
+.badge-source {
+  color: var(--text-soft);
+  background: var(--elevated);
+  border-color: var(--border-strong);
+}
+
+.job-card-title {
+  font-size: 14px;
+  font-weight: 600;
+  margin: 0;
+  letter-spacing: -0.01em;
+  line-height: 1.35;
+}
+.job-card-company { font-size: 12px; color: var(--text-muted); }
+
+.job-card-summary {
+  font-size: 12px;
+  color: var(--text-soft);
+  line-height: 1.5;
+  margin: 0;
+  display: -webkit-box;
+  -webkit-line-clamp: 3;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+  flex: 1;
+}
+
+.job-card-foot {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding-top: 8px;
+  border-top: 1px solid var(--border);
+}
+.job-card-salary {
+  font-size: 12px;
+  font-weight: 600;
+  color: var(--accent-text);
+}
+.job-card-docs { margin-left: auto; display: flex; gap: 10px; }
+.job-card-doc { display: inline-flex; align-items: center; gap: 4px; font-size: 11px; }
+
+/* ============================================================
+ * Modal (scraping)
+ * ============================================================ */
+
+.modal-overlay {
+  position: fixed;
+  inset: 0;
+  background: rgba(0, 0, 0, 0.6);
+  backdrop-filter: blur(2px);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 100;
+  animation: fadeIn 0.15s ease;
+}
+
+.modal {
+  background: var(--panel);
+  border: 1px solid var(--border-strong);
+  border-radius: var(--r-lg);
+  padding: 22px;
+  width: min(520px, calc(100vw - 32px));
+  max-height: calc(100vh - 64px);
+  overflow-y: auto;
+  box-shadow: 0 24px 64px rgba(0, 0, 0, 0.5);
+}
+
+.modal-title {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 16px;
+  font-weight: 600;
+  margin: 0 0 4px;
+}
+.modal-sub { font-size: 12px; margin: 0 0 16px; }
+.modal-section { margin-bottom: 16px; }
+.modal-label {
+  font-size: 12px;
+  font-weight: 500;
+  color: var(--text-soft);
+  margin-bottom: 8px;
+}
+.modal-error {
+  color: var(--danger);
+  background: var(--danger-soft);
+  border-radius: var(--r-md);
+  padding: 8px 12px;
+  font-size: 12px;
+  margin-bottom: 12px;
+}
+.modal-actions {
+  display: flex;
+  justify-content: flex-end;
+  gap: 8px;
+  padding-top: 8px;
+  border-top: 1px solid var(--border);
+}
+
+.scrape-sites { display: flex; gap: 8px; flex-wrap: wrap; }
+.scrape-site {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  padding: 8px 14px;
+  border: 1px solid var(--border-strong);
+  border-radius: var(--r-md);
+  font-size: 13px;
+  cursor: pointer;
+  transition: border-color var(--t-fast), background var(--t-fast);
+}
+.scrape-site:hover { border-color: var(--text-dim); }
+.scrape-site.on {
+  border-color: var(--accent);
+  background: var(--accent-soft);
+  color: var(--accent-text);
+}
+.scrape-site input { accent-color: var(--accent); }
+
+.scrape-limit { width: 100%; accent-color: var(--accent); }
+
+/* ============================================================
+ * Détail candidature (vue augmentée)
+ * ============================================================ */
+
+.detail-top {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 14px;
+}
+
+.detail-head {
+  display: flex;
+  gap: 18px;
+  padding: 20px;
+  flex-wrap: wrap;
+}
+.detail-head-main { flex: 1; min-width: 240px; }
+.detail-title { font-size: 20px; font-weight: 700; margin: 0 0 4px; letter-spacing: -0.02em; }
+.detail-company { font-size: 13px; color: var(--text-muted); margin-bottom: 10px; }
+.detail-link {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  font-size: 12px;
+  color: var(--accent-text);
+}
+
+.detail-head-side select {
+  background: var(--bg);
+  color: var(--text);
+  border: 1px solid var(--border-strong);
+  border-radius: var(--r-md);
+  padding: 8px 10px;
+  font: inherit;
+  font-size: 13px;
+}
+.detail-head-side select:focus {
+  outline: none;
+  border-color: var(--accent);
+  box-shadow: 0 0 0 3px var(--accent-soft);
+}
+
+.detail-meta {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(140px, 1fr));
+  gap: 12px;
+  margin-bottom: 16px;
+}
+.detail-meta-item {
+  background: var(--elevated);
+  border: 1px solid var(--border);
+  border-radius: var(--r-md);
+  padding: 10px 14px;
+}
+.detail-meta-label { font-size: 11px; color: var(--text-dim); margin-bottom: 2px; }
+.detail-meta-value { font-size: 13px; color: var(--text); }
+
+.detail-section { padding: 18px; }
+.detail-section h2 { font-size: 14px; font-weight: 600; margin: 0 0 10px; }
+.detail-summary { font-size: 13px; color: var(--text-soft); line-height: 1.6; margin: 0; }
+
+.detail-description {
+  font: inherit;
+  font-size: 13px;
+  color: var(--text-soft);
+  line-height: 1.6;
+  white-space: pre-wrap;
+  margin: 0;
+  max-height: 360px;
+  overflow-y: auto;
+}
+
+.detail-doc-head {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 10px;
+  margin-bottom: 12px;
+}
+.detail-doc-title {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 14px;
+  font-weight: 600;
+  margin: 0 !important;
+}
+.detail-doc-actions { display: flex; gap: 8px; }
+
+.detail-doc-editor {
+  width: 100%;
+  background: var(--bg);
+  color: var(--text);
+  border: 1px solid var(--border-strong);
+  border-radius: var(--r-md);
+  padding: 12px;
+  font-family: ui-monospace, "SF Mono", Menlo, monospace;
+  font-size: 12.5px;
+  line-height: 1.6;
+  resize: vertical;
+}
+.detail-doc-editor:focus {
+  outline: none;
+  border-color: var(--accent);
+  box-shadow: 0 0 0 3px var(--accent-soft);
+}

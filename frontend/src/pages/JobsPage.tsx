@@ -1,28 +1,22 @@
 import { useCallback, useEffect, useState } from "react";
 
 import { jobsApi } from "../api/jobs";
+import { scrapeApi } from "../api/scrape";
 import AddJobForm from "../components/jobs/AddJobForm";
-import JobRow, { type JobAction } from "../components/jobs/JobRow";
+import JobCard from "../components/jobs/JobCard";
+import ScrapeModal from "../components/jobs/ScrapeModal";
 import { RefreshIcon, SearchIcon, TargetIcon } from "../components/icons/Icon";
 import PageHeader from "../components/ui/PageHeader";
 import type { Job, JobCreate } from "../types/job";
+import type { ScrapeRequest } from "../types/scrape";
 
 type Toast = { kind: "success" | "error"; msg: string } | null;
-
-const ACTION_LABELS: Record<JobAction, string> = {
-  generateCv: "CV généré",
-  generateCoverLetter: "Lettre générée",
-  verify: "Documents vérifiés",
-  submit: "Candidature soumise",
-  sendEmail: "Email envoyé",
-  delete: "Candidature supprimée",
-};
 
 export default function JobsPage() {
   const [jobs, setJobs] = useState<Job[]>([]);
   const [loading, setLoading] = useState(true);
   const [toast, setToast] = useState<Toast>(null);
-  const [scraping, setScraping] = useState(false);
+  const [modalOpen, setModalOpen] = useState(false);
 
   const refresh = useCallback(async () => {
     setLoading(true);
@@ -41,51 +35,42 @@ export default function JobsPage() {
 
   const notify = useCallback((kind: "success" | "error", msg: string) => {
     setToast({ kind, msg });
-    setTimeout(() => setToast(null), 2800);
+    setTimeout(() => setToast(null), 4000);
   }, []);
 
-  const run = useCallback(
-    async (label: string, fn: () => Promise<unknown>) => {
-      try {
-        await fn();
-        notify("success", label);
-        await refresh();
-      } catch (e) {
-        notify("error", String(e));
-      }
-    },
-    [refresh, notify],
-  );
-
-  const handleScrape = async () => {
-    setScraping(true);
-    try {
-      await run("Scrape lancé", () => jobsApi.scrape());
-    } finally {
-      setScraping(false);
+  const handleScrape = async (req: ScrapeRequest) => {
+    const result = await scrapeApi.run(req);
+    const parts = [`${result.created.length} offre(s) importée(s)`];
+    if (result.skippedDuplicates > 0) parts.push(`${result.skippedDuplicates} doublon(s) ignoré(s)`);
+    notify("success", parts.join(" · "));
+    if (result.errors.length > 0) {
+      setTimeout(
+        () => notify("error", result.errors.map((e) => `${e.site} : ${e.message}`).join(" — ")),
+        4200,
+      );
     }
+    await refresh();
   };
 
   const handleCreate = async (job: JobCreate) => {
-    await run("Candidature créée", () => jobsApi.create(job));
+    try {
+      await jobsApi.create(job);
+      notify("success", "Candidature créée");
+      await refresh();
+    } catch (e) {
+      notify("error", String(e));
+    }
   };
 
-  const handleAction = useCallback(
-    (jobId: number, action: JobAction) => {
-      const dispatch = (): Promise<unknown> => {
-        switch (action) {
-          case "generateCv":          return jobsApi.generateCv(jobId);
-          case "generateCoverLetter": return jobsApi.generateCoverLetter(jobId);
-          case "verify":              return jobsApi.verify(jobId);
-          case "submit":              return jobsApi.submit(jobId);
-          case "sendEmail":           return jobsApi.sendEmail(jobId);
-          case "delete":              return jobsApi.remove(jobId);
-        }
-      };
-      return run(ACTION_LABELS[action], dispatch);
-    },
-    [run],
-  );
+  const handleDelete = async (id: number) => {
+    try {
+      await jobsApi.remove(id);
+      notify("success", "Candidature supprimée");
+      await refresh();
+    } catch (e) {
+      notify("error", String(e));
+    }
+  };
 
   return (
     <>
@@ -98,9 +83,9 @@ export default function JobsPage() {
               <RefreshIcon size={14} />
               Rafraîchir
             </button>
-            <button className="btn btn-primary btn-sm" onClick={handleScrape} disabled={scraping}>
+            <button className="btn btn-primary btn-sm" onClick={() => setModalOpen(true)}>
               <SearchIcon size={14} />
-              {scraping ? "Scrape en cours…" : "Scraper les offres"}
+              Scraper les offres
             </button>
           </>
         }
@@ -125,25 +110,14 @@ export default function JobsPage() {
           </div>
         </div>
       ) : (
-        <div className="table-wrap">
-          <table>
-            <thead>
-              <tr>
-                <th style={{ width: "40%" }}>Poste</th>
-                <th>Statut</th>
-                <th>Documents</th>
-                <th style={{ width: 1, textAlign: "right" }}>Actions</th>
-              </tr>
-            </thead>
-            <tbody>
-              {jobs.map((job) => (
-                <JobRow key={job.id} job={job} onAction={(a) => handleAction(job.id, a)} />
-              ))}
-            </tbody>
-          </table>
+        <div className="jobs-grid">
+          {jobs.map((job) => (
+            <JobCard key={job.id} job={job} onDelete={() => handleDelete(job.id)} />
+          ))}
         </div>
       )}
 
+      {modalOpen && <ScrapeModal onClose={() => setModalOpen(false)} onRun={handleScrape} />}
       {toast && <div className={`toast ${toast.kind}`}>{toast.msg}</div>}
     </>
   );

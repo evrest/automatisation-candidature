@@ -1,6 +1,7 @@
 import { Navigate, Route, Routes } from "react-router-dom";
 
 import Layout from "./components/Layout";
+import JobDetailPage from "./pages/JobDetailPage";
 import JobsPage from "./pages/JobsPage";
 import CertificationsPage from "./pages/profile/CertificationsPage";
 import EducationPage from "./pages/profile/EducationPage";
@@ -30,6 +31,7 @@ export default function App() {
         </Route>
 
         <Route path="/jobs" element={<JobsPage />} />
+        <Route path="/jobs/:id" element={<JobDetailPage />} />
 
         <Route path="*" element={<Navigate to="/profile/identity" replace />} />
       </Route>

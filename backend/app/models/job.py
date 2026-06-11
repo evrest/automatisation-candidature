@@ -18,11 +18,13 @@ class JobApplication(Base, TimestampMixin):
     title: Mapped[str] = mapped_column(String)
     company: Mapped[str] = mapped_column(String)
     source: Mapped[str] = mapped_column(String, default="manual")  # linkedin | indeed | manual | ...
+    external_id: Mapped[str | None] = mapped_column(String, nullable=True, index=True)  # id chez la source, dédup
     url: Mapped[str | None] = mapped_column(String, nullable=True)
     location: Mapped[str | None] = mapped_column(String, nullable=True)
     contract_type: Mapped[str | None] = mapped_column(String, nullable=True)
     salary: Mapped[str | None] = mapped_column(String, nullable=True)
     description: Mapped[str | None] = mapped_column(String, nullable=True)
+    summary: Mapped[str | None] = mapped_column(String, nullable=True)  # résumé IA court
     requirements: Mapped[list[str]] = mapped_column(JSON, default=list)
     keywords: Mapped[list[str]] = mapped_column(JSON, default=list)
 
@@ -31,6 +33,8 @@ class JobApplication(Base, TimestampMixin):
 
     cv_path: Mapped[str | None] = mapped_column(String, nullable=True)
     cover_letter_path: Mapped[str | None] = mapped_column(String, nullable=True)
+    cv_content: Mapped[str | None] = mapped_column(String, nullable=True)  # CV généré (markdown)
+    letter_content: Mapped[str | None] = mapped_column(String, nullable=True)  # lettre générée
     contact_email: Mapped[str | None] = mapped_column(String, nullable=True)
     notes: Mapped[str | None] = mapped_column(String, nullable=True)
 

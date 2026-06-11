@@ -3,7 +3,8 @@ from sqlalchemy.orm import Session
 
 from app.database import get_db
 from app.schemas.job import JobCreate, JobRead, JobUpdate
-from app.services import job_service
+from app.services import ai_service, job_service, profile_service
+from app.services.ai_service import AiNotConfigured
 
 router = APIRouter(prefix="/api/jobs", tags=["jobs"])
 
@@ -42,26 +43,42 @@ def delete_job(job_id: int, db: Session = Depends(get_db)) -> None:
 
 
 # --------------------------------------------------------
-# Actions stubbées — branchera la logique réelle plus tard.
-# Pour l'instant : retour JSON minimal { ok, action, jobId }.
+# Génération IA — CV et lettre, depuis profil + offre.
+# Le scraping vit dans routers/scrape.py.
 # --------------------------------------------------------
 
 
-@router.post("/scrape")
-def scrape_jobs() -> dict:
-    return {"ok": True, "action": "scrape", "found": 0}
+@router.post("/{job_id}/generate-cv", response_model=JobRead)
+async def generate_cv(job_id: int, db: Session = Depends(get_db)) -> JobRead:
+    job = _get_or_404(db, job_id)
+    profile = profile_service.get_or_create_profile(db)
+    try:
+        job.cv_content = await ai_service.generate_cv(profile, job)
+    except AiNotConfigured as exc:
+        raise HTTPException(status_code=status.HTTP_503_SERVICE_UNAVAILABLE, detail=str(exc))
+    if job.status == "found":
+        job.status = "cv_generated"
+    db.commit()
+    db.refresh(job)
+    return JobRead.model_validate(job)
 
 
-@router.post("/{job_id}/generate-cv")
-def generate_cv(job_id: int, db: Session = Depends(get_db)) -> dict:
-    _get_or_404(db, job_id)
-    return {"ok": True, "action": "generate_cv", "jobId": job_id}
+@router.post("/{job_id}/generate-cover-letter", response_model=JobRead)
+async def generate_cover_letter(job_id: int, db: Session = Depends(get_db)) -> JobRead:
+    job = _get_or_404(db, job_id)
+    profile = profile_service.get_or_create_profile(db)
+    try:
+        job.letter_content = await ai_service.generate_cover_letter(profile, job)
+    except AiNotConfigured as exc:
+        raise HTTPException(status_code=status.HTTP_503_SERVICE_UNAVAILABLE, detail=str(exc))
+    db.commit()
+    db.refresh(job)
+    return JobRead.model_validate(job)
 
 
-@router.post("/{job_id}/generate-cover-letter")
-def generate_cover_letter(job_id: int, db: Session = Depends(get_db)) -> dict:
-    _get_or_404(db, job_id)
-    return {"ok": True, "action": "generate_cover_letter", "jobId": job_id}
+# --------------------------------------------------------
+# Actions encore stubbées (verify / submit / email).
+# --------------------------------------------------------
 
 
 @router.post("/{job_id}/verify")

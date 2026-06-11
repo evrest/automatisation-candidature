@@ -3,8 +3,9 @@ from fastapi.middleware.cors import CORSMiddleware
 
 from app.config import settings
 from app.database import engine
+from app.migrations import run_migrations
 from app.models import Base
-from app.routers import jobs, profile
+from app.routers import jobs, profile, scrape
 
 
 def create_app() -> FastAPI:
@@ -18,11 +19,13 @@ def create_app() -> FastAPI:
         allow_headers=["*"],
     )
 
-    # MVP : create_all suffit. Passer à Alembic quand le schéma se stabilisera.
+    # MVP : create_all + micro-migrations. Passer à Alembic quand le schéma se stabilisera.
     Base.metadata.create_all(bind=engine)
+    run_migrations(engine)
 
     app.include_router(profile.router)
     app.include_router(jobs.router)
+    app.include_router(scrape.router)
 
     @app.get("/health")
     def health() -> dict:

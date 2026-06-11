@@ -9,11 +9,13 @@ class JobBase(CamelModel):
     title: str
     company: str
     source: str = "manual"
+    external_id: str | None = None
     url: str | None = None
     location: str | None = None
     contract_type: str | None = None
     salary: str | None = None
     description: str | None = None
+    summary: str | None = None
     requirements: list[str] = []
     keywords: list[str] = []
     contact_email: str | None = None
@@ -35,11 +37,14 @@ class JobUpdate(CamelModel):
     contract_type: str | None = None
     salary: str | None = None
     description: str | None = None
+    summary: str | None = None
     requirements: list[str] | None = None
     keywords: list[str] | None = None
     status: str | None = None
     cv_path: str | None = None
     cover_letter_path: str | None = None
+    cv_content: str | None = None
+    letter_content: str | None = None
     contact_email: str | None = None
     notes: str | None = None
 
@@ -49,5 +54,7 @@ class JobRead(JobBase):
     status: str
     cv_path: str | None = None
     cover_letter_path: str | None = None
+    cv_content: str | None = None
+    letter_content: str | None = None
     found_at: datetime
     applied_at: datetime | None = None
