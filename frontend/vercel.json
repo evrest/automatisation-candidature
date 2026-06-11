@@ -8,6 +8,10 @@
     {
       "source": "/api/:path*",
       "destination": "https://backend-unfurling-waterfall-7182.fly.dev/api/:path*"
+    },
+    {
+      "source": "/((?!api/).*)",
+      "destination": "/index.html"
     }
   ]
 }
