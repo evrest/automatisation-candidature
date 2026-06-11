@@ -1,12 +1,9 @@
-import type { Education } from "../../types/profile";
+import { useProfile } from "../../contexts/ProfileContext";
 import { useArrayField } from "../../hooks/useArrayField";
+import { GraduationIcon } from "../icons/Icon";
+import type { Education } from "../../types/profile";
 import { Field, Row, TextArea } from "../ui/Field";
 import { RepeatableSection } from "../ui/RepeatableSection";
-
-interface Props {
-  items: Education[];
-  setItems: (next: Education[]) => void;
-}
 
 const blank = (order: number): Education => ({
   institution: "",
@@ -20,15 +17,21 @@ const blank = (order: number): Education => ({
   order,
 });
 
-export default function EducationSection({ items, setItems }: Props) {
-  const { add, remove, update } = useArrayField(items, setItems);
+export default function EducationSection() {
+  const { profile, setField } = useProfile();
+  const items = profile.educations;
+  const { add, remove, update } = useArrayField(items, setField("educations"));
 
   return (
     <RepeatableSection
       title="Formation"
+      subtitle="Diplômes, écoles, formations continues."
       items={items}
       onAdd={() => add(blank(items.length))}
       onRemove={remove}
+      addLabel="Ajouter une formation"
+      emptyLabel="Aucune formation renseignée."
+      emptyIcon={<GraduationIcon size={20} />}
       itemLabel={(it) => [it.degree, it.institution].filter(Boolean).join(" — ")}
       renderItem={(it, i) => (
         <>
@@ -49,6 +52,7 @@ export default function EducationSection({ items, setItems }: Props) {
             label="Description"
             value={it.description ?? ""}
             onChange={(v) => update(i, { description: v })}
+            placeholder="Cours marquants, projets, prix..."
           />
         </>
       )}

@@ -1,12 +1,9 @@
-import type { Experience } from "../../types/profile";
+import { useProfile } from "../../contexts/ProfileContext";
 import { useArrayField } from "../../hooks/useArrayField";
+import { BriefcaseIcon } from "../icons/Icon";
+import type { Experience } from "../../types/profile";
 import { Field, Row, TagList, TextArea } from "../ui/Field";
 import { RepeatableSection } from "../ui/RepeatableSection";
-
-interface Props {
-  items: Experience[];
-  setItems: (next: Experience[]) => void;
-}
 
 const blank = (order: number): Experience => ({
   company: "",
@@ -22,15 +19,21 @@ const blank = (order: number): Experience => ({
   order,
 });
 
-export default function ExperiencesSection({ items, setItems }: Props) {
-  const { add, remove, update } = useArrayField(items, setItems);
+export default function ExperiencesSection() {
+  const { profile, setField } = useProfile();
+  const items = profile.experiences;
+  const { add, remove, update } = useArrayField(items, setField("experiences"));
 
   return (
     <RepeatableSection
       title="Expériences professionnelles"
+      subtitle="Détaille au max — l'IA condense selon l'offre ciblée."
       items={items}
       onAdd={() => add(blank(items.length))}
       onRemove={remove}
+      addLabel="Ajouter une expérience"
+      emptyLabel="Aucune expérience renseignée."
+      emptyIcon={<BriefcaseIcon size={20} />}
       itemLabel={(it) => [it.position, it.company].filter(Boolean).join(" — ")}
       renderItem={(it, i) => (
         <>
@@ -49,35 +52,38 @@ export default function ExperiencesSection({ items, setItems }: Props) {
           </Row>
           <Row>
             <Field
-              label="Début (YYYY-MM)"
+              label="Début"
               value={it.startDate}
               onChange={(v) => update(i, { startDate: v })}
-              placeholder="2023-01"
+              placeholder="YYYY-MM"
             />
             <Field
-              label="Fin (YYYY-MM, vide si en cours)"
+              label="Fin"
               value={it.endDate ?? ""}
               onChange={(v) => update(i, { endDate: v })}
+              placeholder="vide si en cours"
             />
           </Row>
           <TextArea
-            label="Description (détaillée)"
+            label="Description"
             value={it.description}
             onChange={(v) => update(i, { description: v })}
-            placeholder="Le contexte, la mission, les responsabilités. Détaille — on condensera selon le poste cible."
+            placeholder="Contexte, mission, responsabilités. Détaille — on condensera plus tard."
           />
           <TagList
-            label="Réalisations clés (bullets)"
+            label="Réalisations clés"
             value={it.achievements}
             onChange={(v) => update(i, { achievements: v })}
+            placeholder="Lancé un produit, réduit le coût de X%..."
           />
           <TagList
             label="Technologies"
             value={it.technologies}
             onChange={(v) => update(i, { technologies: v })}
+            placeholder="React, Python, PostgreSQL..."
           />
           <TagList
-            label="Tags (pour ciblage CV)"
+            label="Tags"
             value={it.tags}
             onChange={(v) => update(i, { tags: v })}
             placeholder="backend, data, frontend..."

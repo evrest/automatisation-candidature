@@ -61,7 +61,9 @@ interface TagListProps {
 export function TagList({ label, value, onChange, placeholder }: TagListProps) {
   return (
     <div className="field">
-      <label>{label} <span className="muted">(séparés par des virgules)</span></label>
+      <label>
+        {label} <span className="field-hint">séparés par des virgules</span>
+      </label>
       <input
         type="text"
         value={value.join(", ")}

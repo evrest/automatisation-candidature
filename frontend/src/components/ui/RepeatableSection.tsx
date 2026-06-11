@@ -1,7 +1,10 @@
 import type { ReactNode } from "react";
 
+import { PlusIcon, TrashIcon } from "../icons/Icon";
+
 interface Props<T> {
   title: string;
+  subtitle?: string;
   items: T[];
   onAdd: () => void;
   onRemove: (index: number) => void;
@@ -9,46 +12,68 @@ interface Props<T> {
   itemLabel: (item: T, index: number) => string;
   addLabel?: string;
   emptyLabel?: string;
+  emptyIcon?: ReactNode;
 }
 
 export function RepeatableSection<T>({
   title,
+  subtitle,
   items,
   onAdd,
   onRemove,
   renderItem,
   itemLabel,
-  addLabel = "+ Ajouter",
-  emptyLabel = "Aucun élément",
+  addLabel = "Ajouter",
+  emptyLabel = "Aucun élément pour l'instant.",
+  emptyIcon,
 }: Props<T>) {
   return (
-    <section className="section">
-      <div className="toolbar">
-        <h2 style={{ margin: 0, border: 0, padding: 0 }}>{title}</h2>
-        <button type="button" className="btn btn-sm toolbar-right" onClick={onAdd}>
-          {addLabel}
-        </button>
-      </div>
+    <section className="card">
+      <header className="card-header">
+        <div>
+          <h2 className="card-title">{title}</h2>
+          {subtitle && <p className="card-subtitle">{subtitle}</p>}
+        </div>
+        <div className="card-actions">
+          <button type="button" className="btn btn-subtle btn-sm" onClick={onAdd}>
+            <PlusIcon size={14} />
+            {addLabel}
+          </button>
+        </div>
+      </header>
 
-      {items.length === 0 ? (
-        <p className="muted">{emptyLabel}</p>
-      ) : (
-        items.map((item, index) => (
-          <div className="item-card" key={index}>
-            <div className="item-card-header">
-              <h3>{itemLabel(item, index) || `Élément ${index + 1}`}</h3>
-              <button
-                type="button"
-                className="btn btn-sm btn-danger"
-                onClick={() => onRemove(index)}
-              >
-                Supprimer
-              </button>
-            </div>
-            {renderItem(item, index)}
+      <div className="card-body">
+        {items.length === 0 ? (
+          <div className="empty">
+            {emptyIcon && <div className="empty-icon">{emptyIcon}</div>}
+            <div>{emptyLabel}</div>
           </div>
-        ))
-      )}
+        ) : (
+          items.map((item, index) => {
+            const label = itemLabel(item, index);
+            return (
+              <div className="item-card" key={index}>
+                <div className="item-card-header">
+                  <div className={"item-card-title" + (label ? "" : " empty")}>
+                    {label || `Sans titre (${index + 1})`}
+                  </div>
+                  <div className="flex-spacer" />
+                  <button
+                    type="button"
+                    className="btn btn-danger btn-icon"
+                    onClick={() => onRemove(index)}
+                    title="Supprimer"
+                    aria-label="Supprimer"
+                  >
+                    <TrashIcon size={14} />
+                  </button>
+                </div>
+                <div className="item-card-body">{renderItem(item, index)}</div>
+              </div>
+            );
+          })
+        )}
+      </div>
     </section>
   );
 }

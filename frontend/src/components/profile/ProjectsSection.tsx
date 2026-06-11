@@ -1,12 +1,9 @@
-import type { Project } from "../../types/profile";
+import { useProfile } from "../../contexts/ProfileContext";
 import { useArrayField } from "../../hooks/useArrayField";
+import { RocketIcon } from "../icons/Icon";
+import type { Project } from "../../types/profile";
 import { Field, Row, TagList, TextArea } from "../ui/Field";
 import { RepeatableSection } from "../ui/RepeatableSection";
-
-interface Props {
-  items: Project[];
-  setItems: (next: Project[]) => void;
-}
 
 const blank = (order: number): Project => ({
   name: "",
@@ -23,15 +20,21 @@ const blank = (order: number): Project => ({
   order,
 });
 
-export default function ProjectsSection({ items, setItems }: Props) {
-  const { add, remove, update } = useArrayField(items, setItems);
+export default function ProjectsSection() {
+  const { profile, setField } = useProfile();
+  const items = profile.projects;
+  const { add, remove, update } = useArrayField(items, setField("projects"));
 
   return (
     <RepeatableSection
       title="Projets"
+      subtitle="Side-projects, projets pro marquants, contributions open source."
       items={items}
       onAdd={() => add(blank(items.length))}
       onRemove={remove}
+      addLabel="Ajouter un projet"
+      emptyLabel="Aucun projet renseigné."
+      emptyIcon={<RocketIcon size={20} />}
       itemLabel={(it) => it.name}
       renderItem={(it, i) => (
         <>
@@ -41,7 +44,7 @@ export default function ProjectsSection({ items, setItems }: Props) {
               label="Rôle"
               value={it.role ?? ""}
               onChange={(v) => update(i, { role: v })}
-              placeholder="Lead dev, Auteur..."
+              placeholder="Lead, auteur, contributeur..."
             />
             <Field
               label="Contexte"
@@ -59,14 +62,14 @@ export default function ProjectsSection({ items, setItems }: Props) {
             <Field label="URL GitHub" value={it.githubUrl ?? ""} onChange={(v) => update(i, { githubUrl: v })} />
           </Row>
           <TextArea
-            label="Description (détaillée)"
+            label="Description"
             value={it.description}
             onChange={(v) => update(i, { description: v })}
-            placeholder="Le pourquoi, le comment, les défis techniques..."
+            placeholder="Pourquoi, comment, défis techniques rencontrés."
           />
           <TagList label="Réalisations clés" value={it.achievements} onChange={(v) => update(i, { achievements: v })} />
           <TagList label="Technologies" value={it.technologies} onChange={(v) => update(i, { technologies: v })} />
-          <TagList label="Tags (ciblage CV)" value={it.tags} onChange={(v) => update(i, { tags: v })} />
+          <TagList label="Tags" value={it.tags} onChange={(v) => update(i, { tags: v })} />
         </>
       )}
     />

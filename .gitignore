@@ -8,6 +8,10 @@
 .vercel/
 .fly/
 
+# Graphify — sortie du knowledge graph (volumineux, regénérable via /graphify .)
+graphify-out/
+.graphify/
+
 # Python (filets de sécurité au cas où on lancerait depuis la racine)
 __pycache__/
 *.pyc
